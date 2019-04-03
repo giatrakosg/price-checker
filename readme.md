@@ -1,1 +1,1 @@
-#git-checker 
+*git-checker 
