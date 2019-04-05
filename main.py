@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import re
 import requests
 import shelve
 import sys
@@ -35,11 +36,10 @@ class Item(object):
 
 # Format the string correctly
 def getprice(x):
-	str = x.replace('€','')
-	str = str.replace(' ','')
-	str = str.replace(',','.')
-	price = float(str)
-	return price
+    str = re.sub("[^0-9,.]", "", x)
+    str = str.replace(',','.')
+    price = float(str)
+    return price
 # Remove leading and trailing whitespace
 def gettitle(x):
 	str = x.strip()
@@ -84,5 +84,13 @@ elif (str(sys.argv[1]) == 'delete') :
 elif (str(sys.argv[1]) == 'update') :
 	for x in db.keys():
 		db[x].update()
+elif (str(sys.argv[1]) == 'save') :
+    target_url = input("Please enter url:")
+    # Returns a requests object
+    target = requests.get(target_url)
+    #print(target.text)
+    f = open('example.html','w+')
+    f.write(target.text)
+    f.close()
 
 db.close()
