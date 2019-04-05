@@ -1,5 +1,8 @@
 from bs4 import BeautifulSoup
+import requests
 import shelve
+import sys
+import os 
 
 # Item object stored in database
 class Item(object):
@@ -17,30 +20,24 @@ class Item(object):
         if (self.title == other.title):
             return True
         return False
+db = shelve.open('items.db')
+if(str(sys.argv[1]) == 'show') :
+	for x in db.keys():
+		print(db[x])
+elif (str(sys.argv[1]) == 'add') :
+	target_url = input("Please enter url:")
+	target = requests.get(target_url)
+	soup = BeautifulSoup(target.text,"html.parser")
+	str = soup.find_all(itemprop='price')[0].contents[0]
+	str = str.replace('€','')
+	str = str.replace(' ','')
+	str = str.replace(',','.')
+	price = float(str)
+	print(price)
+elif (str(sys.argv[1]) == 'delete') :
+	if(str(sys.argv[2]) == 'all') :
+		os.remove('items.db')
 
 
-
-db = shelve.open("items.db")
-
-with open("example.html") as fp :
-    soup = BeautifulSoup(fp,"html.parser")
-
-item_title = input("Enter item title : ")
-
-#print(soup.title)
-str = soup.find_all(itemprop='price')[0].contents[0]
-str = str.replace('€','')
-str = str.replace(' ','')
-str = str.replace(',','.')
-price = float(str)
-
-m = Item(price,item_title,['M','S'],'https://www.factoryoutlet.gr/gr-el/online-shop/andrika/royxa/poykamisa/1534507.0_0106-scotch-&-soda')
-cunt = Item(6.3,item_title,['M','S'],'https://www.factoryoutlet.gr/gr-el/online-shop/andrika/royxa/poykamisa/1534507.0_0106-scotch-&-soda')
-db[item_title] = m
-db[item_title] = cunt
-
-
-for x in db.keys() :
-    print(db[x])
 
 db.close()
