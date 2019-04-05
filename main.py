@@ -20,6 +20,17 @@ class Item(object):
         if (self.title == other.title):
             return True
         return False
+
+def getprice(x):
+	str = x.replace('€','')
+	str = str.replace(' ','')
+	str = str.replace(',','.')
+	price = float(str)
+	return price
+def gettitle(x):
+	str = x.strip()
+	return str
+
 db = shelve.open('items.db')
 if(str(sys.argv[1]) == 'show') :
 	for x in db.keys():
@@ -29,15 +40,22 @@ elif (str(sys.argv[1]) == 'add') :
 	target = requests.get(target_url)
 	soup = BeautifulSoup(target.text,"html.parser")
 	str = soup.find_all(itemprop='price')[0].contents[0]
-	str = str.replace('€','')
-	str = str.replace(' ','')
-	str = str.replace(',','.')
-	price = float(str)
+	title = soup.find_all('div',{"class",'product-left__name-second'})[0].contents[0]
+	price = getprice(str)
+	title = gettitle(title)
 	print(price)
+	print(title)
+	item = Item(price,title,['44'],target.text)
+	db[title] = item
 elif (str(sys.argv[1]) == 'delete') :
 	if(str(sys.argv[2]) == 'all') :
 		os.remove('items.db')
-
+	else :
+		title = str(sys.argv[2])
+		try :
+			del db[title]
+		except KeyError :
+			print('Key not found')
 
 
 db.close()
