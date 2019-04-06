@@ -67,7 +67,11 @@ elif (str(sys.argv[1]) == 'add') :
     # We extract the price (in the website we want it is in the itemprop tag)
     str = soup.find_all(itemprop='price')[0].contents[0]
     # We extract the title of the item .Has leading whitespace
-    title = soup.find_all('div',{"class",'product-left__name-second'})[0].contents[0]
+    if result == 'https://www.mrporter.com/':
+        title = soup.title.contents[0]
+    elif result == 'https://www.epapoutsia.gr/':
+        title = soup.find_all('div',{"class",'product-left__name-second'})[0].contents[0]
+    print(title)
     price = getprice(str) # Formating
     title = gettitle(title) # Formating
     print(price)
