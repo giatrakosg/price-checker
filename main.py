@@ -4,6 +4,7 @@ import requests
 import shelve
 import sys
 import os
+from urllib.parse import urlparse
 
 # Item object stored in database
 class Item(object):
@@ -54,21 +55,25 @@ if(str(sys.argv[1]) == 'show') :
 		print(db[x])
 # add new item in database.The url is given by the user
 elif (str(sys.argv[1]) == 'add') :
-	target_url = input("Please enter url:")
+    target_url = input("Please enter url:")
     # Returns a requests object
-	target = requests.get(target_url)
+    target = requests.get(target_url)
+    parsed_uri = urlparse(target_url)
+    result = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+    print(result)
+
     # BeautifulSoup object used for scraping and finding elements
-	soup = BeautifulSoup(target.text,"html.parser")
+    soup = BeautifulSoup(target.text,"html.parser")
     # We extract the price (in the website we want it is in the itemprop tag)
-	str = soup.find_all(itemprop='price')[0].contents[0]
+    str = soup.find_all(itemprop='price')[0].contents[0]
     # We extract the title of the item .Has leading whitespace
-	title = soup.find_all('div',{"class",'product-left__name-second'})[0].contents[0]
-	price = getprice(str) # Formating
-	title = gettitle(title) # Formating
-	print(price)
-	print(title)
-	item = Item(price,title,['44'],target_url)
-	db[title] = item
+    title = soup.find_all('div',{"class",'product-left__name-second'})[0].contents[0]
+    price = getprice(str) # Formating
+    title = gettitle(title) # Formating
+    print(price)
+    print(title)
+    item = Item(price,title,['44'],target_url)
+    db[title] = item
 # If the user calls with delete all we remove entire db
 elif (str(sys.argv[1]) == 'delete') :
 	if(str(sys.argv[2]) == 'all') :
